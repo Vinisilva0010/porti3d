@@ -9,23 +9,22 @@ interface PremiumMenuProps {
 const premiumProjects = [
   { 
     id: 'p1', 
-    title: 'SAAS Enterprise', 
-    subtitle: 'High Ticket System', 
-    image: '/projects/saas-plataform.jpg', 
+    title: 'WhatsApp  ', 
+    
+    image: '/image/whats.png', 
     link: 'https://seulink.com' 
   },
   { 
     id: 'p2', 
-    title: 'Fintech Dashboard', 
-    subtitle: 'Banking System', 
-    image: '/projects/fintech.jpg', 
-    link: 'https://seulink.com' 
+    title: 'Linkedin ', 
+    
+    image: '/image/link.png', 
+    link: 'www.linkedin.com/in/vinicius-pontual-84b05b390' 
   },
   { 
     id: 'p3', 
-    title: 'AI Automation', 
-    subtitle: 'Python & LLMs', 
-    image: '/projects/ai-bot.jpg', 
+    title: 'Discord ', 
+    image: '/image/dic.png', 
     link: 'https://seulink.com' 
   },
 ];
@@ -64,7 +63,7 @@ export default function PremiumMenu({ setHoveredProject }: PremiumMenuProps) {
             letterSpacing: '2px',
             textShadow: '0 0 10px rgba(255, 215, 0, 0.5)'
         }}>
-          PREMIUM
+          Contatos 
         </h2>
         <span style={{ fontSize: '2rem' }}>💎</span>
       </div>
@@ -106,7 +105,7 @@ export default function PremiumMenu({ setHoveredProject }: PremiumMenuProps) {
                 {project.title}
               </h3>
               <p style={{ margin: '5px 0 0 0', fontSize: '0.8rem', color: '#FFD700', fontWeight: 'bold' }}>
-                ⭐ {project.subtitle}
+                
               </p>
             </div>
             <span style={{ fontSize: '1.5rem', color: '#FFD700' }}>➜</span>

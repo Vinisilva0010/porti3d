@@ -1,10 +1,10 @@
 export const projects = [
   {
     id: 1,
-    title: "Barbearia Shop",
-    subtitle: "Landing Page Moderna",
-    image: "/generated-image.png", // Mapped to existing file
-    link: "https://barbearia-projeto.vercel.app"
+    title: "Zanvexis ",
+    subtitle: "plataforma apps",
+    image: "/image/zanve.png", // Mapped to existing file
+    link: "https://zanvexis.com"
   },
   {
     id: 2,

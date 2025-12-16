@@ -462,33 +462,149 @@ export default function Zanvexis3D() {
     scene.add(sideLight);
 
 
- // --- 10. LOOP CORRIGIDO (SEM TRAVAMENTO) ---
+// --- LOOP DE ANIMAÇÃO ---
+// --- 0. O UNIVERSO TECH (GALAXY MODE) ---
+    
+    // GRUPO DO UNIVERSO (Para girar tudo junto)
+    const universeGroup = new THREE.Group();
+    scene.add(universeGroup);
+
+    // 1. ESTRELAS DE FUNDO (+ Densas, + Brilhantes)
+    const starGeo = new THREE.BufferGeometry();
+    const starCount = 5000; // AUMENTEI PARA 5000
+    const starPos = new Float32Array(starCount * 3);
+    for(let i=0; i<starCount*3; i++) {
+        // Espalha em uma área um pouco menor para ficar mais denso
+        starPos[i] = (Math.random() - 0.5) * 350;
+    }
+    starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+    const starMat = new THREE.PointsMaterial({ 
+        color: 0xffffff, 
+        size: 0.2, // Um pouco maiores
+        transparent: true, 
+        opacity: 0.9, // Quase opacas (muito mais brilhantes)
+        sizeAttenuation: true 
+    });
+    const stars = new THREE.Points(starGeo, starMat);
+    universeGroup.add(stars);
+
+    // 2. NÉBULA (+ Cores, + Forte)
+    const nebulaGeo = new THREE.BufferGeometry();
+    const nebulaCount = 1500; // TRIPLIQUEI a quantidade
+    const nebulaPos = new Float32Array(nebulaCount * 3);
+    const nebulaColors = new Float32Array(nebulaCount * 3); 
+
+    for(let i=0; i<nebulaCount; i++) {
+        const i3 = i * 3;
+        nebulaPos[i3] = (Math.random() - 0.5) * 300;
+        nebulaPos[i3+1] = (Math.random() - 0.5) * 300;
+        nebulaPos[i3+2] = (Math.random() - 0.5) * 300;
+
+        // Cores Neon mais fortes
+        const isPurple = Math.random() > 0.5;
+        if(isPurple) {
+            nebulaColors[i3] = 0.8; // Roxo mais forte
+            nebulaColors[i3+1] = 0.0;
+            nebulaColors[i3+2] = 1.0;
+        } else {
+            nebulaColors[i3] = 0.0;
+            nebulaColors[i3+1] = 0.9; // Ciano mais forte
+            nebulaColors[i3+2] = 1.0;
+        }
+    }
+    nebulaGeo.setAttribute('position', new THREE.BufferAttribute(nebulaPos, 3));
+    nebulaGeo.setAttribute('color', new THREE.BufferAttribute(nebulaColors, 3));
+
+    const nebulaMat = new THREE.PointsMaterial({
+        size: 3, // Partículas maiores
+        vertexColors: true, 
+        transparent: true,
+        opacity: 0.5, // Mais visíveis
+        sizeAttenuation: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending // Faz as cores brilharem quando se sobrepõem
+    });
+    const nebula = new THREE.Points(nebulaGeo, nebulaMat);
+    universeGroup.add(nebula);
+
+    // 3. ÍCONES FLUTUANTES (Com brilho Neon)
+    const myStackIcons = [
+        "vscode-icons:file-type-reactjs", "cryptocurrency:btc", "cryptocurrency:eth",
+        "cryptocurrency:sol", "logos:nextjs-icon", "fa-brands:node",
+        "logos:typescript-icon", "logos:javascript", "vscode-icons:file-type-python",
+        "logos:html-5", "vscode-icons:file-type-css", "logos:threejs",
+        "logos:firebase", "logos:mongodb", "logos:postgresql",
+        "logos:github-icon", "logos:vercel-icon", "logos:docker-icon"
+    ];
+
+    myStackIcons.forEach((iconName, index) => {
+        const iconDiv = document.createElement('div');
+        
+        // Alterna entre brilho Ciano e Roxo
+        const glowColor = index % 2 === 0 ? 'rgba(0, 255, 255, 0.8)' : 'rgba(180, 0, 255, 0.8)';
+
+        // HTML com Ícone + Efeito de Brilho Forte
+        iconDiv.innerHTML = `
+            <div style="
+                padding: 10px;
+                background: rgba(0,0,0,0.5);
+                border-radius: 50%;
+                box-shadow: 0 0 30px ${glowColor}, inset 0 0 20px ${glowColor};
+                border: 1px solid ${glowColor};
+            ">
+                <span class="iconify" data-icon="${iconName}" style="font-size: 50px; filter: drop-shadow(0 0 10px white);"></span>
+            </div>
+        `;
+        
+        const iconObj = new CSS3DObject(iconDiv);
+        
+        // Espalha numa esfera ao redor do quarto
+        const theta = Math.random() * Math.PI * 2; 
+        const phi = Math.acos((Math.random() * 2) - 1);
+        const radius = 30 + Math.random() * 25; // Mais próximos para ver melhor
+
+        iconObj.position.set(
+            radius * Math.sin(phi) * Math.cos(theta),
+            radius * Math.sin(phi) * Math.sin(theta),
+            radius * Math.cos(phi)
+        );
+
+        const scale = 0.08 + Math.random() * 0.04; // Ícones um pouco maiores
+        iconObj.scale.set(scale, scale, scale);
+
+        universeGroup.add(iconObj);
+    });
+
+    // --- LOOP DE ANIMAÇÃO ---
     const animate = () => {
       frameId = requestAnimationFrame(animate);
 
-      // Lógica do Scroll (Efeito Túnel)
+      // 1. Scroll do Quarto (Túnel)
       if (typeof window !== 'undefined' && roomGroup) {
          const scrollY = window.scrollY;
-         
-         // Ao invés de mexer na câmera, empurramos o QUARTO para longe.
-         // Quanto mais rola, mais negativo fica o Z do quarto.
-         const targetZ = 0 - (scrollY * 0.05); // Ajuste 0.05 para velocidade
-         
-         // Movemos o quarto para o fundo
-         roomGroup.position.z = targetZ;
-         
-         // Opcional: Faz o quarto girar levemente enquanto afasta (efeito dramático)
-         // roomGroup.rotation.y = scrollY * 0.0005; 
+         roomGroup.position.z = 0 - (scrollY * 0.05);
       }
 
-      // Animação das fans
+      // 2. Rotação da Galáxia (Universo Tech)
+      if (universeGroup) {
+         universeGroup.rotation.y += 0.0003; 
+         universeGroup.rotation.x += 0.0001;
+      }
+
+      // 3. Fans do PC
       if (typeof fan1 !== 'undefined') fan1.rotation.y += 0.15;
       if (typeof fan2 !== 'undefined') fan2.rotation.y += 0.15;
 
-      controls.update(); // Agora o controls funciona livre para girar!
+      controls.update();
       renderer.render(scene, camera);
       cssRenderer.render(scene, camera);
     };
+
+  
+    
+    // Adiciona direto na CENA, e NÃO no roomGroup
+    // Isso é importante: o quarto se mexe, as estrelas ficam fixas no universo
+    scene.add(stars);
 
     // --- 11. RESIZE ---
     const handleResize = () => {
